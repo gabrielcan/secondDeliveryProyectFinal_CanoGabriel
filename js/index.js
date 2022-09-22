@@ -60,6 +60,10 @@ const cantProdCarrito = () => {
 };
 
 
+
+
+
+
 /* Creamos la funcion que mostrara los productos en pantalla */
 const mostrar = () => {
   productos.forEach((producto) => {
@@ -100,48 +104,60 @@ const mostrar = () => {
 
     /* genero la accion del evento que va realizar el boton agregar de cada producto */
     carrito_btnAgregar.onclick = () => {
-      let elementoCarrito = new ElementoCarrito(producto, 1);
+      let elementoCarrito = new ElementoCarrito(producto,1);
 
       let modifProd = elementosCarrito.find(
         (item) => item.producto.id === elementoCarrito.producto.id
       ); //verifico si el producto que estoy agregadon ya existe en el array del carrito
-
-      if (modifProd) {
+ 
+      
+      if (modifProd) {  
         //al existir el producto en el array del carrito sumamos en 1 la cantidad
+           productos.map((item) => {
+          if(item.id === modifProd.producto.id){
+            if(item.stock>0){
+              item.stock = item.stock - 1 
 
-        elementosCarrito.map((item) => {
-          if (item.producto.id === modifProd.producto.id) {
-            item.cantidad = item.cantidad + 1;
-            alert(
-              `Fue sumado una unidad mas del producto "${item.producto.nombre}" al CARRITO`
-            );
+              elementosCarrito.map((item) => {
+
+                if (item.producto.id === modifProd.producto.id) {
+                  
+                  item.cantidad = item.cantidad + 1;
+                  alert(
+                    `Fue sumado una unidad mas del producto "${item.producto.nombre}" al CARRITO`
+                  );
+                }
+                localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el LocalStorage
+                dibujarCarrito();
+              });
+
+            }else{
+              alert(`Sin stock en el producto ${item.nombre}`)
+            }
           }
-
-          dibujarCarrito();
+          /*   ? ()
+            : item; */
         });
 
-        productos.map((item) => {
-          item.id === modifProd.producto.id
-            ? (item.stock = item.stock - 1)
-            : item;
-        });
-
-        console.log(productos);
+        
       } else {
         let elementoCarrito = new ElementoCarrito(producto, 1);
         elementosCarrito.push(elementoCarrito);
+        
+        localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el carrito
 
         productos.map((item) => {
           if (item.stock > 0) {
-            item.id === elementoCarrito.producto.id
-              ? (item.stock = item.stock - 1)
-              : item;
-          } else {
-          }
+          if(item.id === elementoCarrito.producto.id)
+              {item.stock = item.stock - 1}
+              
+
+              console.log(item.stock)
+          } 
         });
         cantProdCarrito();
         alert(`Producto Agregado al CARRITO`);
-
+        localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el LocalStorage
         dibujarCarrito();
       }
     };
@@ -224,26 +240,10 @@ const agregarProductos = () => {
       "CAFÉ EN GRANOS ARMONIOSO (ex Cremoso) DE TUESTE NATURAL GIMOKA ITALIA x 500gr"
     )  
   );
-
-  
-/* Ejemplo de como Guardar los productos de a 1 en el local storage  
- for(const producto of productos){
-guardarLocalStorage(producto.id, JSON.stringify(producto));
-  } 
-  */
-
-  /* ejemplo de la funcion que podemos usar para agregar los productos de a 1 en el local storage*/
-
-/* const guardarLocalStorage=(clave, valor)=>{localStorage.setItem(clave,valor)} */
-
-
-
-
-  localStorage.setItem("Carrito",JSON.stringify(productos))
-
 }; // fin funcion agregar Productos
 
 // FUNCION PARA GENERAR LA VISTA DEL CARRITO DENTRO DEL MODAL
+
 
 const dibujarCarrito = () => {
   let sumaCarrito = 0;
@@ -293,6 +293,7 @@ const dibujarCarrito = () => {
     botonEliminarProducto.addEventListener("click", () => {
       let indiceEliminar = elementosCarrito.indexOf(elemento); //se obtiene la posicion del elemento en el array
       elementosCarrito.splice(indiceEliminar, 1); // se agrega el indice del elemento a eliminar y se indica que se borre un elemento con el número "1"
+localStorage.setItem("Carrito",JSON.stringify(elementosCarrito))
 
       dibujarCarrito(); // volvemos a crear el carrito
       cantProdCarrito();
@@ -315,9 +316,14 @@ const dibujarCarrito = () => {
 };
 
 /* declaramos la/las variables */
-
 const productos = [];
-const elementosCarrito = [];
+let elementosCarrito = [];
+let arrayLocalStorage=localStorage.getItem("Carrito"); //obtengo el valor depositado en el local stortage
+
+if(arrayLocalStorage){
+  elementosCarrito=JSON.parse(arrayLocalStorage);
+}
+
 const contenedorCarritoCompras = document.querySelector("#items");
 const contenedorFooterCarrito = document.querySelector("#footer");
 const estandarDolaresAmericanos = Intl.NumberFormat("en-US");
@@ -373,8 +379,9 @@ let carrito_GloboCant2 = document.getElementById("cart_menu_num2");
 modalBtnComprar.addEventListener("click", () => {
   //verificamos que el array del carrito tenga al menos 1 producto cargado
   if (elementosCarrito.length > 0) {
-    elementosCarrito.splice(0);
-    console.log(elementosCarrito);
+    
+    elementosCarrito.splice(0); //borramos todos los elementos del carrito
+  
     //Mostramos alerta dando aviso que la compra fue realizada "ok"
     modalAlertFinCompra.setAttribute(
       "style",
@@ -387,7 +394,7 @@ modalBtnComprar.addEventListener("click", () => {
         "display:none;justify-content: center;"
       );
     }, 2000);
-
+  localStorage.clear(); // al generarse la compra borramos el elemento del local stor
     dibujarCarrito();
     cantProdCarrito();
   } else {
@@ -411,4 +418,9 @@ modalBtnComprar.addEventListener("click", () => {
 /* Ejecutamos las funciones */
 agregarProductos();
 mostrar();
+cantProdCarrito()
 dibujarCarrito();
+
+
+ 
+
