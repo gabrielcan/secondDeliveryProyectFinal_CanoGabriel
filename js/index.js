@@ -11,7 +11,7 @@ class Producto {
         : categoria; //Colocamos la validacion para evitar un valor no deseado
     this.img = img === "" ? "#" : img;
     this.descrip = descrip === "" ? "Sin descripción del producto" : descrip;
-    this.activo = this.stock < 1 ? false : true; // campo que sera utilizado en próximos envios para filtrar productos que queden sin stock
+    this.activo = true; // campo que sera utilizado en próximos envios para filtrar productos que queden sin stock
   }
   categoria = () => {
     //la funcion permite mostrar el nombre de la categoria dependiendo de la Letra que tenga en dicho campo
@@ -34,7 +34,9 @@ class ElementoCarrito {
   }
 }
 
-const cantProdCarrito = () => {
+
+
+const cantProdCarritoIcono = () => {
   if (elementosCarrito.length > 0) {
     carrito_GloboCant1.innerText = elementosCarrito.length;
     carrito_GloboCant1.setAttribute(
@@ -58,10 +60,6 @@ const cantProdCarrito = () => {
     );
   }
 };
-
-
-
-
 
 
 /* Creamos la funcion que mostrara los productos en pantalla */
@@ -101,6 +99,7 @@ const mostrar = () => {
     carrito_btnAgregar.className = "btn btn-primary";
     carrito_btnAgregar.value = "Agregar";
     carrito_btnAgregar.innerHTML = "AGREGAR";
+    carrito_btnAgregar.id= `idbtn_${producto.id}`;
 
     /* genero la accion del evento que va realizar el boton agregar de cada producto */
     carrito_btnAgregar.onclick = () => {
@@ -109,54 +108,74 @@ const mostrar = () => {
       let modifProd = elementosCarrito.find(
         (item) => item.producto.id === elementoCarrito.producto.id
       ); //verifico si el producto que estoy agregadon ya existe en el array del carrito
- 
-      
+
       if (modifProd) {  
         //al existir el producto en el array del carrito sumamos en 1 la cantidad
            productos.map((item) => {
+            
+
           if(item.id === modifProd.producto.id){
             if(item.stock>0){
-              item.stock = item.stock - 1 
+              item.stock = item.stock - 1;
+
 
               elementosCarrito.map((item) => {
 
                 if (item.producto.id === modifProd.producto.id) {
                   
                   item.cantidad = item.cantidad + 1;
-                  alert(
-                    `Fue sumado una unidad mas del producto "${item.producto.nombre}" al CARRITO`
-                  );
+          /*  usamos Alert de la librerira "sweetalert2" */
+                  Swal.fire({
+                    icon: 'info',
+                  /*   title: 'MODIFICAMOS', */
+                    text: `Fue sumada una unidad mas del producto "${item.producto.nombre}" al CARRITO`,
+                  })
+
                 }
                 localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el LocalStorage
                 dibujarCarrito();
               });
 
             }else{
-              alert(`Sin stock en el producto ${item.nombre}`)
+              Swal.fire({
+                icon: 'warning',
+                text: `Sin stock del producto ${item.nombre}`,
+              })
+
             }
           }
-          /*   ? ()
-            : item; */
+      
         });
 
         
       } else {
         let elementoCarrito = new ElementoCarrito(producto, 1);
+
         elementosCarrito.push(elementoCarrito);
         
         localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el carrito
 
         productos.map((item) => {
+
           if (item.stock > 0) {
           if(item.id === elementoCarrito.producto.id)
-              {item.stock = item.stock - 1}
+              {item.stock = item.stock - 1
               
+              }
+            } else {
+           
+              mostrar();
+            } 
 
-              console.log(item.stock)
-          } 
+
         });
-        cantProdCarrito();
-        alert(`Producto Agregado al CARRITO`);
+
+        cantProdCarritoIcono();
+/*  usamos Alert de la librerira "sweetalert2" */
+        Swal.fire({
+          icon: 'success',
+          text: `Producto Agregado al CARRITO`,
+        })
         localStorage.setItem("Carrito",JSON.stringify(elementosCarrito)); //guardamos el elemento en el LocalStorage
         dibujarCarrito();
       }
@@ -189,7 +208,7 @@ const agregarProductos = () => {
       1,
       "Kit Daewoo Amoladora Angular 750w + Taladro Percutor 550w",
       11500,
-      2,
+      1,
       "O",
       "./medias/img_Art_Mas_Vendidos_03.JPG",
       " Lo que tenés que saber de este producto Apta para un disco de 115 mm de diámetro. \nAlcanza una profundidad de corte de 115 mm.\nTrae interruptor tecla. Su potencia es de 750 W."
@@ -198,7 +217,7 @@ const agregarProductos = () => {
       2,
       "Auriculares Inalambricos",
       9900,
-      10,
+      2,
       "E",
       "./medias/img_Art_Mas_Vendidos_01.JPG",
       "Auricular. Bluetooth. El formato perfecto para vos: al serin-ear, aislan el ruido del exterior, mejoran la calidad del audio y son de tamano pequeno para poder insertarse en tu oreja.Son ideales para acompanarte a la hora de hacer ejercicio mientras te sumergis en el mejor sonido envolvente. Base descarga: 800 mAh."
@@ -207,7 +226,7 @@ const agregarProductos = () => {
       3,
       "Libro De Comerciante A Empresario",
       1110,
-      3,
+      1,
       "L",
       "./medias/IMG_Articulo5.jpg",
       "En este libro el autor te enseña el camino y te da muchos consejos necesarios para producir el cambio que siempre soñaste. Esta novedosa metodología te enseñará a evolucionar cada paso y a conocer el proceso paso a paso, así podrás moverte de forma ascendente en el mundo de los negocios."
@@ -216,7 +235,7 @@ const agregarProductos = () => {
       4,
       "Zanella Hot 90 Shot Tucumán",
       15000,
-      3,
+      2,
       "O",
       "./medias/IMG_Articulo6.jpg",
       "MOTOZUNI S.A. NO COBRA FORMULARIOS.Jueves 8 y Viernes 9 de Septiembre DESCUENTO sobre el precio publicado. Consultar promoción.Créditos SOLO con DNI. Sin demoras, entrega en el acto. Primera cuota del crédito DNI en el mes de OCTUBRE. TE LLEVAMOS LA MOTO EN EL DÍA"
@@ -225,7 +244,7 @@ const agregarProductos = () => {
       5,
       "Smart Tv Tcl L40s66e 40 Full Hd Android Tv",
       80000,
-      5,
+      2,
       "E",
       "./medias/IMG_Articulo7.jpg",
       "Este modelo en concreto, el de 58 pulgadas, solemos verlo por un precio de casi 1.000 euros, por lo que ahora, con la oferta de El Corte Inglés, podemos llevárnoslo con un precio reducido del 37%, lo que sería un descuento de 360 euros que lo deja a tan solo 599 euros. Un precio muy interesante si estamos buscando un televisor potente, con buena angular de pantalla y un buen precio."
@@ -234,7 +253,7 @@ const agregarProductos = () => {
       6,
       "Café Tostado En Granos Gimoka Italia",
       1500,
-      5,
+      1,
       "A",
       "./medias/IMG_Articulo8.jpg",
       "CAFÉ EN GRANOS ARMONIOSO (ex Cremoso) DE TUESTE NATURAL GIMOKA ITALIA x 500gr"
@@ -250,7 +269,7 @@ const dibujarCarrito = () => {
   contenedorCarritoCompras.innerHTML = "";
 
   elementosCarrito.forEach((elemento) => {
-    /* console.log(elemento) */
+
     let renglonesCarrito = document.createElement("tr");
 
     renglonesCarrito.innerHTML = `
@@ -260,7 +279,7 @@ const dibujarCarrito = () => {
                   elemento.producto.id
                 }" type="number" value="${
       elemento.cantidad
-    }" min="1" max="1000" step="1" style="width:3rem;"/></td>
+    }"disabled step="1" style="width:3rem;"/></td>
                 <td>$ ${elemento.producto.valorUnidad}</td>
                 <td>$ ${estandarDolaresAmericanos.format(
                   elemento.producto.valorUnidad * elemento.cantidad
@@ -296,7 +315,8 @@ const dibujarCarrito = () => {
 localStorage.setItem("Carrito",JSON.stringify(elementosCarrito))
 
       dibujarCarrito(); // volvemos a crear el carrito
-      cantProdCarrito();
+      cantProdCarritoIcono();
+     
     });
   });
 
@@ -396,7 +416,7 @@ modalBtnComprar.addEventListener("click", () => {
     }, 2000);
   localStorage.clear(); // al generarse la compra borramos el elemento del local stor
     dibujarCarrito();
-    cantProdCarrito();
+    cantProdCarritoIcono();
   } else {
     //Mostramos alerta dando aviso que no tiene productos en el carrito
     modalAlertSinProduct.setAttribute(
@@ -411,16 +431,16 @@ modalBtnComprar.addEventListener("click", () => {
       );
     }, 2000);
     dibujarCarrito();
-    cantProdCarrito();
+    cantProdCarritoIcono();
   }
 });
 
 /* Ejecutamos las funciones */
 agregarProductos();
 mostrar();
-cantProdCarrito()
+cantProdCarritoIcono()
 dibujarCarrito();
 
 
- 
+
 
